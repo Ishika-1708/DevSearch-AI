@@ -5,9 +5,27 @@ import "../styles/home.css";
 
 function Home() {
     const [searchQuery, setSearchQuery] = useState("");
+    const [results, setResults] = useState([]);
 
-    function handleSearch(query) {
+    async function handleSearch(query) {
         setSearchQuery(query);
+
+        try {
+
+            const response = await fetch(
+                `https://api.github.com/search/repositories?q=${query}`    
+            );
+
+            const data = await response.json();
+
+            
+
+            setResults(data.items);
+
+        } catch (error) {
+
+            console.error("Search failed", error);
+        }
 
     }
 
@@ -41,9 +59,36 @@ function Home() {
                         Searching for: <strong>{searchQuery}</strong>
                     </p>
                 )}
-            </div>
 
+                <div className="results">
+
+                    {results.map((repo) => (
+
+                        <div className="result-card" key={repo.id}>
+                            
+                            <h3>{repo.name}</h3>
+
+                            <p>{repo.description}</p>
+
+                            <p>{repo.stargazers_count} stars</p>
+
+                            <a
+                                href={repo.html_url}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                            >
+                                View Repository
+                            </a>
+                        </div>
+
+                    ))}
+                 
+                </div>
+
+            </div>
+        
         </div>
+        
     );
 
 
