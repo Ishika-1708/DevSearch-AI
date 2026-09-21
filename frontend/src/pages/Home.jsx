@@ -9,6 +9,7 @@ function Home() {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState("");
     const [sortOption, setSortOption] = useState("best");
+    const [language, setLanguage] = useState("");
 
     async function handleSearch(query) {
         console.log("QUERY RECEIVED BY HOME:", query);
@@ -26,8 +27,17 @@ function Home() {
             } else if (sortOption === "updated") {
                 sortParameter = "&sort=updated&order=desc";
             }
+
+            let languageParameter = "";
+
+            if (language) {
+                languageParameter = ` language:${language}`;
+            }
+
+            const searchQueryWithLanguage = `${query}${languageParameter}`;
+
             const response = await fetch(
-                `https://api.github.com/search/repositories?q=${encodeURIComponent(query)}${sortParameter}`
+                `https://api.github.com/search/repositories?q=${encodeURIComponent(searchQueryWithLanguage)}${sortParameter}`
             );
 
             if (!response.ok) {
@@ -58,7 +68,7 @@ function Home() {
         if (searchQuery) {
             handleSearch(searchQuery);
         }
-    }, [sortOption]);
+    }, [sortOption, language]);
 
     return (
         <div className="home">
@@ -91,6 +101,24 @@ function Home() {
                         <option value="updated">Recently Updated</option>
                     </select>
                     
+                </div>
+
+                <div className="filter-container">
+                    
+                    <label htmlFor="language">Language:</label>
+
+                    <select
+                        id="language"
+                        value={language}
+                        onChange={(event)=> setLanguage(event.target.value)}
+                    >
+                        <option value="Any">Any</option>
+                        <option value="Python">Python</option>
+                        <option value="JavaScript">JavaScript</option>
+                        <option value="Java">Java</option>
+                        <option value="C++">C++</option>
+                        <option value="TypeScript">TypeScript</option>
+                    </select>
                 </div>
 
                 <div className="tech-stack">

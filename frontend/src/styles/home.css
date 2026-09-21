@@ -287,3 +287,22 @@ body{
     border: 1px solid #ccc;
     cursor: pointer;
 }
+
+.filter-container {
+    margin-top: 20px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+}
+
+.filter-container label {
+    font-weight: 500;
+}
+
+.filter-container select {
+    padding: 8px 12px;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+    cursor: pointer;
+}
