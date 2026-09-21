@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Navbar from "../components/Navbar";
 import SearchBar from "../components/Searchbar";
 import "../styles/home.css";
@@ -6,25 +6,59 @@ import "../styles/home.css";
 function Home() {
     const [searchQuery, setSearchQuery] = useState("");
     const [results, setResults] = useState([]);
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState("");
+    const [sortOption, setSortOption] = useState("best");
 
     async function handleSearch(query) {
+        console.log("QUERY RECEIVED BY HOME:", query);
+        console.log("QUERY TYPE:", typeof query);
+
         setSearchQuery(query);
+        setLoading(true);
+        setError("");
 
         try {
+            let sortParameter = "";
+
+            if (sortOption === "stars") {
+                sortParameter = "&sort=stars&order=desc";
+            } else if (sortOption === "updated") {
+                sortParameter = "&sort=updated&order=desc";
+            }
             const response = await fetch(
-                `https://api.github.com/search/repositories?q=${query}`
+                `https://api.github.com/search/repositories?q=${encodeURIComponent(query)}${sortParameter}`
             );
+
+            if (!response.ok) {
+                throw new Error("Github API request failed");
+            }
 
             const data = await response.json();
 
-            console.log(data.items[0]);
+            
 
-            setResults(data.items);
+            setResults(data.items || []);
 
         } catch (error) {
+
             console.error("Search failed", error);
+
+            setError("Something went wrong while searching Github");
+
+            setResults([]);
+
+        } finally {
+
+            setLoading(false);
         }
     }
+
+    useEffect(() => {
+        if (searchQuery) {
+            handleSearch(searchQuery);
+        }
+    }, [sortOption]);
 
     return (
         <div className="home">
@@ -43,6 +77,22 @@ function Home() {
 
                 <SearchBar onSearch={handleSearch} />
 
+                <div className="sort-container">
+
+                    <label htmlFor="sort">Sort by:</label>
+
+                    <select
+                        id="sort"
+                        value={sortOption}
+                        onChange={(event) => setSortOption(event.target.value)}
+                    >
+                        <option value="best">Best Match</option>
+                        <option value="stars">Most Stars</option>
+                        <option value="updated">Recently Updated</option>
+                    </select>
+                    
+                </div>
+
                 <div className="tech-stack">
                     <span>React</span>
                     <span>Java</span>
@@ -56,6 +106,24 @@ function Home() {
                     <p className="search-message">
                         Searching for: <strong>{searchQuery}</strong>
                     </p>
+                )}
+
+                {loading && (
+                    <p className="loading-message">
+                        Searching Github...
+                    </p>
+                )}
+
+                {error && (
+                    <p className="error-message">
+                        {error}
+                    </p>
+                )}
+
+                {searchQuery && !loading && !error && results.length === 0 && (
+                    <p className="empty-message">
+                        No repositories found for "{searchQuery}"
+                    </p>   
                 )}
 
                 <div className="results">

@@ -1,7 +1,7 @@
 import { useState } from "react";
 import "../styles/searchbar.css";
 
-function SearchBar({ onSearch }){
+function SearchBar({ onSearch }) {
 
     const [query, setQuery] = useState("");
 
@@ -9,36 +9,43 @@ function SearchBar({ onSearch }){
         setQuery(event.target.value);
     }
 
+    function handleKeyDown(event) {
+        if (event.key === "Enter") {
+            handleSearch();
+        }
+    }
+
     function handleSearch() {
-        if (query.trim() === "") {
+        const cleanQuery = query.trim();
+
+        if (cleanQuery === "") {
             return;
         }
-        
-        onSearch(query);
+
+        onSearch(cleanQuery);
     }
 
     return (
         <div className="search-container">
 
-        <input
-          className="search-input"
-          type="text"
-          placeholder="Search programming topics.."
-          value={query}
-          onChange={handleInputChange}
-        />
+            <input
+                className="search-input"
+                type="text"
+                placeholder="Search programming topics.."
+                value={query}
+                onChange={handleInputChange}
+                onKeyDown={handleKeyDown}
+            />
 
-        <button 
-          className="search-button"
-          onClick={handleSearch}
-        >
-            Search
-        </button>
+            <button
+                className="search-button"
+                onClick={handleSearch}
+            >
+                Search
+            </button>
 
-    </div>
-
-
-   );
+        </div>
+    );
 }
 
 export default SearchBar;
