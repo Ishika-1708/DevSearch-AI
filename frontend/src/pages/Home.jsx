@@ -10,6 +10,7 @@ function Home() {
     const [error, setError] = useState("");
     const [sortOption, setSortOption] = useState("best");
     const [language, setLanguage] = useState("");
+    const [page, setPage] = useState(1);
 
     async function handleSearch(query) {
         console.log("QUERY RECEIVED BY HOME:", query);
@@ -37,7 +38,7 @@ function Home() {
             const searchQueryWithLanguage = `${query}${languageParameter}`;
 
             const response = await fetch(
-                `https://api.github.com/search/repositories?q=${encodeURIComponent(searchQueryWithLanguage)}${sortParameter}`
+                `https://api.github.com/search/repositories?q=${encodeURIComponent(searchQueryWithLanguage)}${sortParameter}&page=${page}&per_page=30`
             );
 
             if (!response.ok) {
@@ -66,9 +67,20 @@ function Home() {
 
     useEffect(() => {
         if (searchQuery) {
-            handleSearch(searchQuery);
+           handleSearch(searchQuery);    
+        }
+    }, [page]);
+
+    useEffect(() => {
+        if (searchQuery) {
+            setPage(1);
         }
     }, [sortOption, language]);
+
+    function handleNewSearch(query) {
+        setPage(1);
+        handleSearch(query);
+    }
 
     return (
         <div className="home">
@@ -85,7 +97,7 @@ function Home() {
                     tutorials and AI summaries in one place.
                 </p>
 
-                <SearchBar onSearch={handleSearch} />
+                <SearchBar onSearch={handleNewSearch} />
 
                 <div className="sort-container">
 
@@ -238,6 +250,25 @@ function Home() {
                             </div>
                         );
                     })}
+
+                </div>
+
+                <div className="pagination">
+
+                    <button
+                        onClick={() => setPage(page - 1)}
+                        disabled={page === 1}
+                        >
+                            Previous
+                        </button>
+                    
+                    <span>Page {page}</span>
+
+                    <button
+                        onClick={() => setPage(page + 1)}
+                    >
+                        Next
+                    </button>
 
                 </div>
 
